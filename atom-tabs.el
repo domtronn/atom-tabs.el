@@ -142,8 +142,15 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                                 (define-key map [header-line M-mouse-1] ,alt-f)
                                 (when (not @limit) map))))))
 
-(define-atom-tabs-rotation-icon "left" 'atom-tabs--rotate/dec 'atom-tabs--rotate/min (all-the-icons-faicon "chevron-left"   :v-adjust 0.2) 0)
-(define-atom-tabs-rotation-icon "right" 'atom-tabs--rotate/inc 'atom-tabs--rotate/max (all-the-icons-faicon "chevron-right" :v-adjust 0.2) (lambda () (1- (atom-tabs--buffer-list-length))))
+(define-atom-tabs-rotation-icon "left"
+  'atom-tabs--rotate/dec
+  'atom-tabs--rotate/min
+  (all-the-icons-faicon "chevron-left" :v-adjust 0.2) 0)
+
+(define-atom-tabs-rotation-icon "right"
+  'atom-tabs--rotate/inc
+  'atom-tabs--rotate/max
+  (all-the-icons-faicon "chevron-right" :v-adjust 0.2) (lambda () (1- (atom-tabs--buffer-list-length))))
 
 (defun atom-tabs-target-icon ()
   "Icon to target the current buffer if its not visible."
