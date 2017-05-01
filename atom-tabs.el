@@ -361,9 +361,12 @@ This will only show when `atom-tabs--show:tab-numbers?' is non-nil"
   "Return the shortened name for BUFFER with its mode icon.
 TAB-LENGTH is the desired length of a uniform tab."
   (let* ((active? (eq buffer (current-buffer)))
-         (icon (all-the-icons-icon-for-file (buffer-name buffer) :v-adjust 0.3))
+         (mode (buffer-local-value 'major-mode buffer))
+         (icon (if (eq 'dired-mode mode)
+                   (all-the-icons-icon-for-dir (buffer-name buffer) nil "")
+                   (all-the-icons-icon-for-mode mode)))
          (icon-face `(:height  ,(plist-get (get-text-property 0 'face icon) :height)
-                      :family  ,(all-the-icons-icon-family-for-file (buffer-name buffer))
+                      :family  ,(all-the-icons-icon-family icon)
                       :foreground ,(or (when (and active? atom-tabs--show:color-icons?)
                                          (ignore-errors (face-foreground (plist-get (get-text-property 0 'face icon) :inherit))))
                                     (atom-tabs--foreground active?))
@@ -379,7 +382,7 @@ TAB-LENGTH is the desired length of a uniform tab."
                       :foreground ,(atom-tabs--foreground active?)
                       :background ,(atom-tabs--background active?))))
     (concat
-     (when atom-tabs--show:file-icons? (propertize icon 'face icon-face))
+     (when atom-tabs--show:file-icons? (propertize icon 'face icon-face 'display '(raise 0.3)))
      (propertize name 'face name-face 'display '(raise 0.4)))))
 
 (defun atom-tabs--create-tab (buffer &optional tab-length)
