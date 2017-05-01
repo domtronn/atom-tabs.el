@@ -396,7 +396,7 @@ NAME is the direction and F is the function needed to choose next index."
   "Set the `header-line-format' to be the tabs theme."
   (interactive)
   (when (eq atom-tabs--buffer-list:type :open-order)
-    (setq atom-tabs--recent-buffers (append atom-tabs--recent-buffers `(,(current-buffer)))))
+    (atom-tabs--add-recent))
   (advice-add 'find-file :after 'atom-tabs--add-recent)
   (advice-add 'switch-to-buffer :after 'atom-tabs--add-recent)
   (advice-add 'kill-buffer :after 'atom-tabs--kill-recent)
