@@ -69,6 +69,7 @@
   "The color to use for various higlights in the theme."
   :group 'atom-tabs
   :type 'color)
+
 (defvar atom-tabs--filter:blacklist
   '("^\\*" "^ \\*" "^COMMIT_EDITMSG$")
   "List of regexps to not show/add as a tab.")
@@ -79,6 +80,26 @@
 
 (defvar atom-tabs--buffer-list/custom nil "Custom function to display buffers.")
 
+(defcustom atom-tabs-keymap-prefix (kbd "C-x t")
+  "Atom tabs keymap prefix."
+  :group 'atom-tabs
+  :type 'key-sequence)
+
+(defvar atom-tabs-command-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "l") 'atom-tabs-forward-tab)
+    (define-key map (kbd "h") 'atom-tabs-backward-tab)
+    map)
+  "Keymap for Atom Tabs commands after `atom-tabs-keymap-prefix'.")
+(fset 'atom-tabs-command-map atom-tabs-command-map)
+
+(defvar atom-tabs-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map atom-tabs-keymap-prefix 'atom-tabs-command-map)
+    map)
+  "Keymap for Projectile mode.")
+
+;; State variables
 (defvar atom-tabs--recent-buffers '() "A list of recently accessed buffers in order of the time they were accessed.")
 (defvar-local atom-tabs--rotate 0 "The number with which to rotate the list of buffers.")
 
@@ -427,6 +448,21 @@ NAME is the direction and F is the function needed to choose next index."
   (advice-add 'switch-to-buffer :after 'atom-tabs--add-recent)
   (advice-add 'kill-buffer :after 'atom-tabs--kill-recent)
   (setq-default header-line-format (atom-tabs--theme)))
+
+;;;###autoload
+(define-minor-mode atom-tabs-minor-mode
+  "Minor mode to help with js dependency injection.
+
+When called interactively, toggle `atom-tabs-minor-mode'.  With prefix
+ARG, enable `atom-tabs-minor-mode' if ARG is positive, otherwise disable
+it.
+
+\\{-mode-map}"
+  :keymap atom-tabs-mode-map
+  :group 'atom-tabs
+  :require 'atom-tabs)
+
+(define-global-minor-mode global-atom-tabs-minor-mode atom-tabs-minor-mode atom-tabs-minor-mode)
 
 (provide 'atom-tabs)
 ;;; atom-tabs.el ends here
