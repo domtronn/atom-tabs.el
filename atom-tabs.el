@@ -56,7 +56,7 @@
           (const :tag "limited - Show navigation tools when number of tabs is greater than `atom-tabs--nav-tool-display-limit' " limited)))
 
 (defvar atom-tabs--filter:blacklist
-  '("^\\*" "^ \\*")
+  '("^\\*" "^ \\*" "^COMMIT_EDITMSG$")
   "List of regexps to not show/add as a tab.")
 
 (defvar atom-tabs--filter:whitelist
