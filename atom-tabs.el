@@ -240,8 +240,10 @@ rotation index to disable this button."
                    'help-echo (when (not @limit) (format " mouse-1: Rotate list %s
 M-mouse-1: Go to %s-most item in list" ,name ,name))
                    'local-map (let ((map (make-sparse-keymap)))
-                                (define-key map [header-line down-mouse-1] ,f)
-                                (define-key map [header-line M-mouse-1] ,alt-f)
+                                (define-key map [header-line down-mouse-1]
+                                  `(lambda () (interactive) (select-window ,(get-buffer-window (current-buffer))) (,,f)))
+                                (define-key map [header-line M-mouse-1]
+                                  `(lambda () (interactive) (select-window ,(get-buffer-window (current-buffer))) (,,alt-f)))
                                 (when (not @limit) map))))))
 
 (define-atom-tabs-rotation-icon "left"
