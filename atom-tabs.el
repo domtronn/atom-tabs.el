@@ -292,9 +292,8 @@ TAB-LENGTH is the desired length of a uniform tab."
               (atom-tabs--name buffer tab-length)
               right-padding
               (atom-tabs--modified-icon buffer))
-      'help-echo (when (string-match-p "… $" (atom-tabs--name buffer tab-length))
-                   (buffer-name buffer))
-      'mouse-face `(:foreground ,atom-tabs--highlight :inherit)
+      'help-echo  (when (string-match-p "… $" (atom-tabs--name buffer tab-length)) (buffer-name buffer))
+      'mouse-face (unless(eq buffer (current-buffer)) `(:foreground ,atom-tabs--highlight :inherit))
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map
                      [header-line down-mouse-1]
