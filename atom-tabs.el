@@ -47,12 +47,12 @@
     :custom     (atom-tabs--buffer-list/custom . atom-tabs--can-show/custom)))
 
 (defvar atom-tabs--nav-tools:limit 10)
-(defcustom atom-tabs--nav-tools:type nil
+(defcustom atom-tabs--nav-tools:type never
   "Whether or not to show the navigation tools to rotate the list of buffers."
   :group 'atom-tabs
   :type '(radio
-          (const :tag "nil     - Never show the navigation tools" nil)
-          (const :tag "t       - Show naivgation tools all the time " t)
+          (const :tag "never   - Never show the navigation tools" never)
+          (const :tag "always  - Show naivgation tools all the time " always)
           (const :tag "limited - Show navigation tools when number of tabs is greater than `atom-tabs--nav-tool-display-limit' " limited)))
 
 (defvar atom-tabs--filter:blacklist
@@ -126,7 +126,8 @@
   "Function to return the nav tools or nil."
   (when (cl-case atom-tabs--nav-tools:type
           (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tools:limit))
-          (t atom-tabs--nav-tools:type))
+          (never nil)
+          (t t))
     (concat
      (atom-tabs-rotate-left-icon)
      (atom-tabs-rotate-right-icon))))
@@ -202,7 +203,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                                  :foreground ,(atom-tabs--background t)
                                  :background ,(atom-tabs--background)))
      (propertize " " 'face `(:background ,(atom-tabs--background))))
-    'mouse-face `(:background ,(atom-tabs--background t) :foreground ,(atom-tabs--foreground t) )
+    'mouse-face `((foreground-color . ,atom-tabs--highlight))
     'local-map (let ((map (make-sparse-keymap)))
                  (define-key map [header-line down-mouse-1]
                    '(lambda () (interactive)
