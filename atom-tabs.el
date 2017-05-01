@@ -70,7 +70,12 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   :type 'boolean)
 
 (defcustom atom-tabs--show:color-icons? t
-  "Whether or not to display mode icons in colour."
+  "Whether or not to display file icons in color."
+  :group 'atom-tabs
+  :type 'boolean)
+
+(defcustom atom-tabs--show:file-icons? t
+  "Whether or not to display file icons next to buffer names."
   :group 'atom-tabs
   :type 'boolean)
 
@@ -374,7 +379,7 @@ TAB-LENGTH is the desired length of a uniform tab."
                       :foreground ,(atom-tabs--foreground active?)
                       :background ,(atom-tabs--background active?))))
     (concat
-     (propertize icon 'face icon-face)
+     (when atom-tabs--show:file-icons? (propertize icon 'face icon-face))
      (propertize name 'face name-face 'display '(raise 0.4)))))
 
 (defun atom-tabs--create-tab (buffer &optional tab-length)
