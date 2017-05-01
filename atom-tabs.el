@@ -152,7 +152,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
      (propertize
-      (format "%s" (all-the-icons-material (if visible? "location_disabled" "location_searching") :v-adjust 0))
+      (all-the-icons-material (if visible? "location_disabled" "location_searching") :v-adjust 0)
       'face `(:family ,(all-the-icons-material-family)
                       :height 1.4
                       :foreground ,(if visible? (atom-tabs--background t) (atom-tabs--foreground))
