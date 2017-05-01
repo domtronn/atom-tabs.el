@@ -188,6 +188,32 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                    (when (not visible?) map)))
      (unless  (atom-tabs--nav-tools) (propertize " " 'face `(:background ,(atom-tabs--background)))))))
 
+(defun atom-tabs-add-icon ()
+  "Icon to add a new buffer/tab."
+  (concat
+   (propertize (propertize " " 'face `(:background ,(atom-tabs--background) :family "Arial Narrow" :height 2.5)))
+   (propertize
+    (concat
+     (propertize " " 'face `(:background ,(atom-tabs--background)))
+     (propertize (all-the-icons-material "add" :v-adjust 0)
+
+                 'face `(:family ,(all-the-icons-material-family)
+                                 :height 1.4
+                                 :foreground ,(atom-tabs--background t)
+                                 :background ,(atom-tabs--background)))
+     (propertize " " 'face `(:background (atom-tabs--background))))
+    'mouse-face `(:background ,(atom-tabs--background t) :foreground ,(atom-tabs--foreground t) :underline ,atom-tabs--highlight)
+    'local-map (let ((map (make-sparse-keymap)))
+                 (define-key map [header-line down-mouse-1]
+                   '(lambda () (interactive)
+                      (call-interactively
+                       (cond
+                        ((fboundp 'counsel-find-file) 'counsel-find-file)
+                        ((fboundp 'helm-find-file) 'helm-find-file)
+                        ((fboundp 'ido-find-file) 'ido-find-file)
+                        (t 'find-file)))))
+                 map))))
+
 (defun atom-tabs--close-icon (buffer)
   "Create a clickable close icon for BUFFER."
   (let ((active? (eq buffer (current-buffer))))
@@ -362,7 +388,7 @@ NAME is the direction and F is the function needed to choose next index."
                             (atom-tabs--create-button it (min 25 (- (/ (window-text-width) (atom-tabs--buffer-list-length)) 6) ))))
                  buffers
                  :initial-value '())
-                ))
+                (atom-tabs-add-icon)))
             (setq-local header-line-format nil)
             (force-window-update)))))
 
