@@ -266,7 +266,7 @@ TAB-LENGTH is the desired length of a uniform tab."
      (propertize icon 'face icon-face)
      (propertize name 'face name-face 'display '(raise 0.4)))))
 
-(defun atom-tabs--create-button (buffer &optional tab-length)
+(defun atom-tabs--create-tab (buffer &optional tab-length)
   "Create the string representation of tab for BUFFER.
 TAB-LENGTH is the desired length of a uniform tab."
   (let* ((tab-name   (buffer-name buffer))
@@ -385,7 +385,7 @@ NAME is the direction and F is the function needed to choose next index."
                 (cl-reduce
                  (lambda (acc it)
                     (format "%s%s" (or acc "")
-                            (atom-tabs--create-button it (min 25 (- (/ (window-text-width) (atom-tabs--buffer-list-length)) 6) ))))
+                            (atom-tabs--create-tab it (min 25 (- (/ (window-text-width) (atom-tabs--buffer-list-length)) 6) ))))
                  buffers
                  :initial-value '())
                 (atom-tabs-add-icon)))
