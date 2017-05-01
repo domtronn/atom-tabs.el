@@ -55,6 +55,15 @@
           (const :tag "always  - Show naivgation tools all the time " always)
           (const :tag "limited - Show navigation tools when number of tabs is greater than `atom-tabs--nav-tool-display-limit' " limited)))
 
+(defcustom atom-tabs--tab-numbers:type 'fixed
+  "Whether the tab numbers should be fixed or relative.
+When FIXED, a tab number will remain the same, even when the list is rotated.
+when RELATIVE a tab number will change based on rotation through the list of tabs."
+  :group 'atom-tabs
+  :type '(radio
+          (const 'fixed)
+          (const 'relative)))
+
 (defcustom atom-tabs--show:tab-numbers? nil
   "Whether or not to display tab numbers in tabs."
   :group 'atom-tabs
@@ -89,6 +98,16 @@
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "l") 'atom-tabs-forward-tab)
     (define-key map (kbd "h") 'atom-tabs-backward-tab)
+    (define-key map (kbd "1") 'atom-tabs-select-tab-1)
+    (define-key map (kbd "2") 'atom-tabs-select-tab-2)
+    (define-key map (kbd "3") 'atom-tabs-select-tab-3)
+    (define-key map (kbd "4") 'atom-tabs-select-tab-4)
+    (define-key map (kbd "5") 'atom-tabs-select-tab-5)
+    (define-key map (kbd "6") 'atom-tabs-select-tab-6)
+    (define-key map (kbd "7") 'atom-tabs-select-tab-7)
+    (define-key map (kbd "8") 'atom-tabs-select-tab-8)
+    (define-key map (kbd "9") 'atom-tabs-select-tab-9)
+    (define-key map (kbd "0") 'atom-tabs-select-tab-10)
     map)
   "Keymap for Atom Tabs commands after `atom-tabs-keymap-prefix'.")
 (fset 'atom-tabs-command-map atom-tabs-command-map)
@@ -280,11 +299,13 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 This will only show when `atom-tabs--show:tab-numbers?' is non-nil"
   (when atom-tabs--show:tab-numbers?
     (let ((active? (eq buffer (current-buffer)))
-          (pos (cl-position buffer (atom-tabs--buffer-list))))
+          (pos (cl-position buffer (if (eq atom-tabs--tab-numbers:type 'fixed)
+                                       (atom-tabs--get-buffer-list)
+                                     (atom-tabs--buffer-list)))))
       (propertize (format "%c" (+ pos 9312))
                   'face `(:background ,(atom-tabs--background active?)
-                                      :foreground ,(atom-tabs--foreground active?)
-                                      :height 1.6)
+                          :foreground ,(atom-tabs--foreground active?)
+                          :height 1.6)
                   'display '(raise 0.2)))))
 
 (defun atom-tabs--name (buffer &optional tab-length)
@@ -418,6 +439,28 @@ NAME is the direction and F is the function needed to choose next index."
 
 (define-atom-tabs-navigation "forward" '1+)
 (define-atom-tabs-navigation "backward" '1-)
+
+(defmacro define-atom-tabs-select (i)
+  "Macro to define an integer based tab selection function.
+I is the index of the tab to select."
+  `(defun ,(intern (format "atom-tabs-select-tab-%s" i)) ()
+     ,(format "Select the %sth tab if visible." i)
+     (interactive)
+     (switch-to-buffer (nth (1- ,i)
+                            (if (eq atom-tabs--tab-numbers:type 'fixed)
+                                (atom-tabs--get-buffer-list)
+                              (atom-tabs--buffer-list))))))
+
+(define-atom-tabs-select 1)
+(define-atom-tabs-select 2)
+(define-atom-tabs-select 3)
+(define-atom-tabs-select 4)
+(define-atom-tabs-select 5)
+(define-atom-tabs-select 6)
+(define-atom-tabs-select 7)
+(define-atom-tabs-select 8)
+(define-atom-tabs-select 9)
+(define-atom-tabs-select 10)
 
 ;; Main Theme
 (defun atom-tabs--theme ()
