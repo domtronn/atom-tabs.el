@@ -273,6 +273,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map [header-line down-mouse-1]
                      `(lambda () (interactive)
+                        (select-window ,(get-buffer-window (current-buffer)))
                         (if (eq atom-tabs--rotate:type 'local)
                             (setq-local atom-tabs--rotate:local ,current-id)
                           (setq atom-tabs--rotate:global ,current-id))
