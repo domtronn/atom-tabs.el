@@ -47,7 +47,7 @@
     :custom     (atom-tabs--buffer-list/custom . atom-tabs--can-show/custom)))
 
 (defvar atom-tabs--nav-tools:limit 10)
-(defcustom atom-tabs--nav-tools:type never
+(defcustom atom-tabs--nav-tools:type 'never
   "Whether or not to show the navigation tools to rotate the list of buffers."
   :group 'atom-tabs
   :type '(radio
@@ -120,7 +120,15 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 
 ;; State variables
 (defvar atom-tabs--recent-buffers '() "A list of recently accessed buffers in order of the time they were accessed.")
-(defvar-local atom-tabs--rotate 0 "The number with which to rotate the list of buffers.")
+
+(defvar atom-tabs--rotate:global 0 "The number with which to rotate the list of buffers globally.")
+(defvar-local atom-tabs--rotate:local 0 "The number with which to rotate the list of buffers locally.")
+(defcustom atom-tabs--rotate:type 'local
+  "Whether tab rotation should be affect globally or locally."
+  :group 'atom-tabs
+    :type '(radio
+            (const 'local)
+            (const 'global)) )
 
 (defun atom-tabs--get-buffer-list ()
   "Common code to call to get the list of displayable buffers."
@@ -137,7 +145,7 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   (length (atom-tabs--get-buffer-list)))
 
 (defun atom-tabs--filter:match (buf filter-list)
-  "Function to tell whether BUF matches a regexp in FILTER-LIST."
+  "Function to tell whether BUF match a regexp in FILTER-LIST."
   (cl-reduce (lambda (acc it) (or acc (string-match-p it buf))) filter-list :initial-value nil))
 
 (defun atom-tabs--can-show:base (&optional buf)
@@ -166,12 +174,39 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 
 (defun atom-tabs--rotate (list-var)
   "Rotate LIST-VAR by N."
-  (cl-remove-if (lambda (it) (< (cl-position it list-var) atom-tabs--rotate)) list-var))
+  (cl-remove-if (lambda (it) (< (cl-position it list-var)
+                           (if (eq atom-tabs--rotate:type 'local)
+                               atom-tabs--rotate:local
+                             atom-tabs--rotate:global))) list-var))
 
-(defun atom-tabs--rotate/inc () "Increase the rotation." (interactive) (cl-incf atom-tabs--rotate) (force-window-update))
-(defun atom-tabs--rotate/dec () "Decrease the rotation." (interactive) (cl-decf atom-tabs--rotate) (force-window-update))
-(defun atom-tabs--rotate/min () "Set rotation back to 0." (interactive) (setq atom-tabs--rotate 0) (force-window-update))
-(defun atom-tabs--rotate/max () "Rotate to the very end of the list." (interactive) (setq atom-tabs--rotate (- (atom-tabs--buffer-list-length) 4)) (force-window-update))
+(defun atom-tabs--rotate/inc ()
+  "Increase the rotation."
+  (interactive)
+  (cl-incf atom-tabs--rotate:local)
+  (cl-incf atom-tabs--rotate:global)
+  (force-window-update))
+
+(defun atom-tabs--rotate/dec ()
+  "Decrease the rotation."
+  (interactive)
+  (cl-decf atom-tabs--rotate:local)
+  (cl-decf atom-tabs--rotate:global)
+  (force-window-update))
+
+(defun atom-tabs--rotate/min ()
+  "Set rotation back to 0."
+  (interactive)
+  (setq atom-tabs--rotate:local 0)
+  (setq atom-tabs--rotate:global 0)
+  (force-window-update))
+
+(defun atom-tabs--rotate/max ()
+  "Rotate to the very end of the list.
+N.B This only works in `atom-tabs--rotate:type' local mode."
+  (interactive)
+  (setq atom-tabs--rotate:local (- (atom-tabs--buffer-list-length) 4))
+  (setq atom-tabs--rotate:global (- (atom-tabs--buffer-list-length) 4))
+  (force-window-update))
 
 (defun atom-tabs--nav-tools ()
   "Function to return the nav tools or nil."
@@ -194,7 +229,8 @@ rotation index to disable this button."
      (interactive)
      (let* ((icon-family (all-the-icons-icon-family ,icon))
             (limit (if (functionp ,limit) (funcall ,limit) ,limit))
-            (@limit (eq atom-tabs--rotate limit)))
+            (@limit (eq (if (eq atom-tabs--rotate:type 'local) atom-tabs--rotate:local atom-tabs--rotate:global)
+                        limit)))
        (propertize (format "  %s  " ,icon)
                    'face `(:family ,icon-family
                            :height 1.2
@@ -221,7 +257,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 (defun atom-tabs-target-icon ()
   "Icon to target the current buffer if its not visible."
   (let* ((current-id (cl-position (current-buffer) (atom-tabs--get-buffer-list)))
-         (visible? (<= atom-tabs--rotate current-id)))
+         (visible? (<= (if (eq atom-tabs--rotate:type 'local) atom-tabs--rotate:local atom-tabs--rotate:global) current-id)))
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
      (propertize
@@ -235,7 +271,9 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map [header-line down-mouse-1]
                      `(lambda () (interactive)
-                        (setq-local atom-tabs--rotate ,current-id)
+                        (if (eq atom-tabs--rotate:type 'local)
+                            (setq-local atom-tabs--rotate:local ,current-id)
+                          (setq atom-tabs--rotate:global ,current-id))
                         (force-window-update)))
                    (when (not visible?) map)))
      (unless (atom-tabs--nav-tools) (propertize " " 'face `(:background ,(atom-tabs--background)))))))
