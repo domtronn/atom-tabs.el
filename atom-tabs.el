@@ -44,9 +44,10 @@
     :projectile (atom-tabs--buffer-list/projectile . atom-tabs--can-show/projectile)
     :recentf    (atom-tabs--buffer-list/recentf . atom-tabs--can-show/recentf)
     :major-mode (atom-tabs--buffer-list/major-mode . atom-tabs--can-show/major-mode)
-    :custom     (atom-tabs--buffer-list/custom . atom-tabs--can-show/custom) ))
+    :custom     (atom-tabs--buffer-list/custom . atom-tabs--can-show/custom)))
 
-(defcustom atom-tabs--show-nav-tools nil
+(defvar atom-tabs--nav-tools:limit 10)
+(defcustom atom-tabs--nav-tools:type nil
   "Whether or not to show the navigation tools to rotate the list of buffers."
   :group 'atom-tabs
   :type '(radio
@@ -54,9 +55,15 @@
           (const :tag "t       - Show naivgation tools all the time " t)
           (const :tag "limited - Show navigation tools when number of tabs is greater than `atom-tabs--nav-tool-display-limit' " limited)))
 
-(defvar atom-tabs--nav-tool-display-limit 10)
+(defvar atom-tabs--filter:blacklist
+  '("^\\*" "^ \\*")
+  "List of regexps to not show/add as a tab.")
 
-(defvar atom-tabs--color-icons t)
+(defvar atom-tabs--filter:whitelist
+  '("^\\*scratch.*\\*$")
+  "List of regexps to always show/add as a tab.")
+
+(defvar atom-tabs--color-icons? t)
 (defvar atom-tabs--highlight "#63B2FF")
 
 (defvar atom-tabs--buffer-list/custom nil "Custom function to display buffers.")
@@ -78,16 +85,23 @@
   "Get the length of the buffers being displayed."
   (length (atom-tabs--get-buffer-list)))
 
+(defun atom-tabs--filter:match (buf filter-list)
+  "Function to tell whether BUF matches a regexp in FILTER-LIST."
+  (cl-reduce (lambda (acc it) (or acc (string-match-p it buf))) filter-list :initial-value nil))
+
+(defun atom-tabs--can-show:base (&optional buf)
+  "Base predicate to tell that BUF can be shown."
+  (let ((buf (or buf (buffer-name (current-buffer)))))
+    (or
+     (atom-tabs--filter:match buf atom-tabs--filter:whitelist)          ;; Either buffer is on whitelist
+     (not (atom-tabs--filter:match buf atom-tabs--filter:blacklist))))) ;; or its not on the blacklist
+
 (defun atom-tabs--can-show? ()
   "Call `atom-tabs--buffer-list-f' predicate to decide whether to show for `current-buffer'."
-  (and (atom-tabs--can-show-p)
+  (and (atom-tabs--can-show:base)
    (if (fboundp (cdr (plist-get atom-tabs--buffer-list:plist atom-tabs--buffer-list:type)))
        (funcall (cdr (plist-get atom-tabs--buffer-list:plist atom-tabs--buffer-list:type)))
      (buffer-file-name))))
-
-(defun atom-tabs--can-show-p ()
-  "Base predicate that all `can-show' functions must pass."
-  (not (string-match-p "^ \\*" (buffer-name (current-buffer)))))
 
 (defun atom-tabs--foreground (&optional active?)
   "Return the foreground color based on whether buffer is ACTIVE?."
@@ -110,9 +124,9 @@
 
 (defun atom-tabs--nav-tools ()
   "Function to return the nav tools or nil."
-  (when (cl-case atom-tabs--show-nav-tools
-          (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tool-display-limit))
-          (t atom-tabs--show-nav-tools))
+  (when (cl-case atom-tabs--nav-tools:type
+          (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tools:limit))
+          (t atom-tabs--nav-tools:type))
     (concat
      (atom-tabs-rotate-left-icon)
      (atom-tabs-rotate-right-icon))))
@@ -208,7 +222,7 @@ TAB-LENGTH is the desired length of a uniform tab."
          (icon (all-the-icons-icon-for-file (buffer-name buffer) :v-adjust 0.3))
          (icon-face `(:height  ,(plist-get (get-text-property 0 'face icon) :height)
                       :family  ,(all-the-icons-icon-family-for-file (buffer-name buffer))
-                      :foreground ,(if (and active? atom-tabs--color-icons)
+                      :foreground ,(if (and active? atom-tabs--color-icons?)
                                        (face-foreground (plist-get (get-text-property 0 'face icon) :inherit))
                                      (atom-tabs--foreground active?))
                       :background ,(atom-tabs--background active?)))
@@ -286,7 +300,7 @@ TAB-LENGTH is the desired length of a uniform tab."
   "Advice to add `current-buffer' on `find-file' to `atom-tabs--recent-buffers'.
 ARGS is placeholder for when used as advice."
   (when (and (not (memq (current-buffer) atom-tabs--recent-buffers))
-             (not (string-match-p "^ \\*" (buffer-name (current-buffer)))))
+             (atom-tabs--can-show:base))
     (setq atom-tabs--recent-buffers (append atom-tabs--recent-buffers `(,(current-buffer))))))
 
 (defun atom-tabs--kill-recent (&rest args)
