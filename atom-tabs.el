@@ -87,6 +87,9 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   '("^\\*scratch.*\\*$")
   "List of regexps to always show/add as a tab.")
 
+(defvar atom-tabs--desired-tab-length 25
+  "The approximate desired maximum length of a tab in characters.")
+
 (defvar atom-tabs--buffer-list/custom nil "Custom function to display buffers.")
 
 (defcustom atom-tabs-keymap-prefix (kbd "C-x t")
@@ -515,7 +518,9 @@ I is the index of the tab to select."
                 (cl-reduce
                  (lambda (acc it)
                     (format "%s%s" (or acc "")
-                            (atom-tabs--create-tab it (min 25 (- (/ (window-text-width) (atom-tabs--buffer-list-length)) 6) ))))
+                            (atom-tabs--create-tab it
+                             (min atom-tabs--desired-tab-length
+                                  (- (/ (window-text-width) (atom-tabs--buffer-list-length)) 6) ))))
                  buffers
                  :initial-value '())
                 (atom-tabs-add-icon)))
