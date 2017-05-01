@@ -186,12 +186,12 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                         (setq-local atom-tabs--rotate ,current-id)
                         (force-window-update)))
                    (when (not visible?) map)))
-     (unless  (atom-tabs--nav-tools) (propertize " " 'face `(:background ,(atom-tabs--background)))))))
+     (unless (atom-tabs--nav-tools) (propertize " " 'face `(:background ,(atom-tabs--background)))))))
 
 (defun atom-tabs-add-icon ()
   "Icon to add a new buffer/tab."
   (concat
-   (propertize (propertize " " 'face `(:background ,(atom-tabs--background) :family "Arial Narrow" :height 2.5)))
+   (propertize (propertize " " 'face `(:background ,(atom-tabs--background t) :family "Arial Narrow" :height 2.5)))
    (propertize
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
@@ -201,7 +201,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                                  :height 1.4
                                  :foreground ,(atom-tabs--background t)
                                  :background ,(atom-tabs--background)))
-     (propertize " " 'face `(:background (atom-tabs--background))))
+     (propertize " " 'face `(:background ,(atom-tabs--background))))
     'mouse-face `(:background ,(atom-tabs--background t) :foreground ,(atom-tabs--foreground t) :underline ,atom-tabs--highlight)
     'local-map (let ((map (make-sparse-keymap)))
                  (define-key map [header-line down-mouse-1]
