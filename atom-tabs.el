@@ -362,9 +362,9 @@ This will only show when `atom-tabs--show:tab-numbers?' is non-nil"
 TAB-LENGTH is the desired length of a uniform tab."
   (let* ((active? (eq buffer (current-buffer)))
          (mode (buffer-local-value 'major-mode buffer))
-         (icon (if (eq 'dired-mode mode)
-                   (all-the-icons-icon-for-dir (buffer-name buffer) nil "")
-                   (all-the-icons-icon-for-mode mode)))
+         (icon (cond ((eq 'dired-mode mode)
+                      (all-the-icons-icon-for-dir (buffer-name buffer) nil ""))
+                     (t (all-the-icons-icon-for-file (buffer-name buffer)))))
          (icon-face `(:height  ,(plist-get (get-text-property 0 'face icon) :height)
                       :family  ,(all-the-icons-icon-family icon)
                       :foreground ,(or (when (and active? atom-tabs--show:color-icons?)
