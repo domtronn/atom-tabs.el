@@ -22,7 +22,7 @@
 ;;; Commentary:
 
 ;;; Code:
-;; (require 'all-the-icons)
+(require 'all-the-icons)
 
 ;; Forward declarations of optional dependencies
 (declare-function projectile-project-p "ext:projectile.el")
