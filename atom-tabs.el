@@ -417,7 +417,6 @@ TAB-LENGTH is the desired length of a uniform tab."
      (atom-tabs--close-icon buffer)
      main-padding)))
 
-(memoize 'atom-tabs--create-tab)
 (memoize 'atom-tabs--close-icon)
 (memoize 'atom-tabs-target-icon)
 (memoize 'atom-tabs-add-icon)
