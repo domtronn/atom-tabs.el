@@ -89,7 +89,7 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   "List of regexps to not show/add as a tab.")
 
 (defvar atom-tabs--filter:whitelist
-  '("^\\*scratch.*\\*$")
+  '("^\\*scratch.*\\*$" "^\\*new-tab\\*")
   "List of regexps to always show/add as a tab.")
 
 (defvar atom-tabs--desired-tab-length 25
@@ -306,14 +306,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
     'mouse-face `((foreground-color . ,atom-tabs--highlight))
     'local-map (let ((map (make-sparse-keymap)))
                  (define-key map [header-line down-mouse-1]
-                   '(lambda () (interactive)
-                      (run-with-timer 0.3 nil (lambda () (select-window (active-minibuffer-window)))) ;; Steal focus because
-                      (call-interactively                                                        ;; calling interactively
-                       (cond                                                                     ;; doesn't give focus
-                        ((fboundp 'counsel-find-file) 'counsel-find-file)                        ;; to minibuffer
-                        ((fboundp 'helm-find-file) 'helm-find-file)
-                        ((fboundp 'ido-find-file) 'ido-find-file)                                ;; sad face :(
-                        (t 'find-file)))))
+                   (lambda () (interactive) (switch-to-buffer (generate-new-buffer "*new-tab*"))))
                  map))))
 
 (defun atom-tabs--close-icon (buffer)
