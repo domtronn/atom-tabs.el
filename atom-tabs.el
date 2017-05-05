@@ -3,7 +3,11 @@
 ;; Copyright (C) 2017  Dominic Charlesworth <dgc336@gmail.com>
 
 ;; Author: Dominic Charlesworth <dgc336@gmail.com>
+;; Package-Version: 1.0.0
+;; Package-Requires: ((emacs "24.4") (all-the-icons "2.4.1") (memoize "1.0.1"))
+;; URL: https://github.com/domtronn/atom-tabs.el
 ;; Keywords: tools, convenience
+
 ;; Created: 28 Apr 2017
 
 ;; This program is free software; you can redistribute it and/or
@@ -412,6 +416,11 @@ TAB-LENGTH is the desired length of a uniform tab."
                    map))
      (atom-tabs--close-icon buffer)
      main-padding)))
+
+(memoize 'atom-tabs--create-tab)
+(memoize 'atom-tabs--close-icon)
+(memoize 'atom-tabs-target-icon)
+(memoize 'atom-tabs-add-icon)
 
 ;; Buffer filter functions
 
