@@ -296,12 +296,10 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
    (propertize
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
-     (propertize (all-the-icons-material "add" :v-adjust 0)
-
-                 'face `(:family ,(all-the-icons-material-family)
-                                 :height 1.4
-                                 :foreground ,(atom-tabs--background t)
-                                 :background ,(atom-tabs--background)))
+     (propertize "+"
+                 'face `(:height 2.0
+                         :foreground ,(atom-tabs--background t)
+                         :background ,(atom-tabs--background)))
      (propertize " " 'face `(:background ,(atom-tabs--background))))
     'mouse-face `((foreground-color . ,atom-tabs--highlight))
     'local-map (let ((map (make-sparse-keymap)))
@@ -312,11 +310,11 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 (defun atom-tabs--close-icon (buffer)
   "Create a clickable close icon for BUFFER."
   (let ((active? (eq buffer (current-buffer))))
-    (propertize
-     (all-the-icons-faicon "times-circle" :v-adjust 0.4)
-     'face `(:family ,(all-the-icons-faicon-family)
-             :foreground ,(atom-tabs--foreground active?)
-             :background ,(atom-tabs--background active?))
+    (propertize "❌"
+     'display '(raise 0.3)
+     'face `(:foreground ,(atom-tabs--foreground active?)
+             :background ,(atom-tabs--background active?)
+             :height 1.1)
      'mouse-face `((foreground-color . ,atom-tabs--highlight))
      'local-map (let ((map (make-sparse-keymap)))
                   (define-key map
