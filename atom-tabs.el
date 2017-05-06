@@ -1,4 +1,4 @@
-;;; atom-tabs.el --- A Package to display Atom Style tabs at the top of the window
+;;; atom-tabs.el --- A Package to display Atom Style tabs
 
 ;; Copyright (C) 2017  Dominic Charlesworth <dgc336@gmail.com>
 
@@ -417,7 +417,6 @@ TAB-LENGTH is the desired length of a uniform tab."
      (atom-tabs--close-icon buffer)
      main-padding)))
 
-(memoize 'atom-tabs--close-icon)
 (memoize 'atom-tabs-target-icon)
 (memoize 'atom-tabs-add-icon)
 
@@ -543,22 +542,26 @@ I is the index of the tab to select."
   (advice-add 'find-file :after 'atom-tabs--add-recent)
   (advice-add 'switch-to-buffer :after 'atom-tabs--add-recent)
   (advice-add 'kill-buffer :after 'atom-tabs--kill-recent)
-  (setq-default header-line-format (atom-tabs--theme)))
+  (setq-local header-line-format (atom-tabs--theme)))
 
 ;;;###autoload
-(define-minor-mode atom-tabs-minor-mode
+(define-minor-mode atom-tabs-mode
   "Minor mode to help with js dependency injection.
 
-When called interactively, toggle `atom-tabs-minor-mode'.  With prefix
-ARG, enable `atom-tabs-minor-mode' if ARG is positive, otherwise disable
+When called interactively, toggle `atom-tabs-mode'.  With prefix
+ARG, enable `atom-tabs-mode' if ARG is positive, otherwise disable
 it.
 
 \\{-mode-map}"
   :keymap atom-tabs-mode-map
   :group 'atom-tabs
-  :require 'atom-tabs)
+  :require 'atom-tabs
+  (if atom-tabs-mode
+      (atom-tabs-theme)
+    (setq-local header-line-format nil)))
 
-(define-global-minor-mode global-atom-tabs-minor-mode atom-tabs-minor-mode atom-tabs-minor-mode)
+;;;###autoload
+(define-globalized-minor-mode global-atom-tabs-mode atom-tabs-mode atom-tabs-mode)
 
 (provide 'atom-tabs)
 ;;; atom-tabs.el ends here
