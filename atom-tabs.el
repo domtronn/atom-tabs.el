@@ -50,8 +50,8 @@
     :major-mode (atom-tabs--buffer-list/major-mode . atom-tabs--can-show/major-mode)
     :custom     (atom-tabs--buffer-list/custom . atom-tabs--can-show/custom)))
 
-(defvar atom-tabs--nav-tools:limit 10)
-(defcustom atom-tabs--nav-tools:type 'never
+(defvar atom-tabs--nav-tools:limit 5)
+(defcustom atom-tabs-show--nav-tools? 'never
   "Whether or not to show the navigation tools to rotate the list of buffers."
   :group 'atom-tabs
   :type '(radio
@@ -68,17 +68,17 @@ when RELATIVE a tab number will change based on rotation through the list of tab
           (const 'fixed)
           (const 'relative)))
 
-(defcustom atom-tabs--show:tab-numbers? nil
+(defcustom atom-tabs-show--tab-numbers? nil
   "Whether or not to display tab numbers in tabs."
   :group 'atom-tabs
   :type 'boolean)
 
-(defcustom atom-tabs--show:color-icons? t
+(defcustom atom-tabs-show--color-icons? t
   "Whether or not to display file icons in color."
   :group 'atom-tabs
   :type 'boolean)
 
-(defcustom atom-tabs--show:file-icons? t
+(defcustom atom-tabs-show--file-icons? t
   "Whether or not to display file icons next to buffer names."
   :group 'atom-tabs
   :type 'boolean)
@@ -222,7 +222,7 @@ N.B This only works in `atom-tabs--rotate:type' local mode."
 
 (defun atom-tabs--nav-tools ()
   "Function to return the nav tools or nil."
-  (when (cl-case atom-tabs--nav-tools:type
+  (when (cl-case atom-tabs-show--nav-tools?
           (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tools:limit))
           (never nil)
           (t t))
@@ -340,8 +340,8 @@ BUFFER face changes dependning on whether or not it's ACTIVE?."
 
 (defun atom-tabs--num-icon (buffer)
   "Show the number of the current BUFFER tab.
-This will only show when `atom-tabs--show:tab-numbers?' is non-nil"
-  (when atom-tabs--show:tab-numbers?
+This will only show when `atom-tabs-show--tab-numbers?' is non-nil"
+  (when atom-tabs-show--tab-numbers?
     (let ((active? (eq buffer (current-buffer)))
           (pos (cl-position buffer (if (eq atom-tabs--tab-numbers:type 'fixed)
                                        (atom-tabs--get-buffer-list)
@@ -362,7 +362,7 @@ TAB-LENGTH is the desired length of a uniform tab."
                      (t (all-the-icons-icon-for-file (buffer-name buffer)))))
          (icon-face `(:height  ,(plist-get (get-text-property 0 'face icon) :height)
                       :family  ,(all-the-icons-icon-family icon)
-                      :foreground ,(or (when (and active? atom-tabs--show:color-icons?)
+                      :foreground ,(or (when (and active? atom-tabs-show--color-icons?)
                                          (ignore-errors (face-foreground (plist-get (get-text-property 0 'face icon) :inherit))))
                                     (atom-tabs--foreground active?))
                       :background ,(atom-tabs--background active?)))
@@ -377,7 +377,7 @@ TAB-LENGTH is the desired length of a uniform tab."
                       :foreground ,(atom-tabs--foreground active?)
                       :background ,(atom-tabs--background active?))))
     (concat
-     (when atom-tabs--show:file-icons? (propertize icon 'face icon-face 'display '(raise 0.3)))
+     (when atom-tabs-show--file-icons? (propertize icon 'face icon-face 'display '(raise 0.3)))
      (propertize name 'face name-face 'display '(raise 0.4)))))
 
 (defun atom-tabs--create-tab (buffer &optional tab-length)
@@ -392,7 +392,7 @@ TAB-LENGTH is the desired length of a uniform tab."
          (active? (eq buffer (current-buffer)))
 
          (padding-face `(:background ,(if active? (face-background 'default) (face-background 'powerline-inactive1))))
-         (left-padding  (propertize (cl-reduce 'concat (make-list (max (- pad-length (if atom-tabs--show:tab-numbers? 3 0)) 2) " ")) 'face padding-face))
+         (left-padding  (propertize (cl-reduce 'concat (make-list (max (- pad-length (if atom-tabs-show--tab-numbers? 3 0)) 2) " ")) 'face padding-face))
          (right-padding (propertize (cl-reduce 'concat (make-list (max (- pad-length 2) 0) " ")) 'face padding-face))
          (main-padding (propertize " " 'face padding-face))
 
@@ -417,6 +417,7 @@ TAB-LENGTH is the desired length of a uniform tab."
      (atom-tabs--close-icon buffer active?)
      main-padding)))
 
+(memoize 'atom-tabs--filter:match)
 (memoize 'atom-tabs--close-icon)
 (memoize 'atom-tabs-target-icon)
 (memoize 'atom-tabs-add-icon)
