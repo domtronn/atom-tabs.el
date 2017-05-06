@@ -56,14 +56,14 @@ like this
          ("C-(" . atom-tabs-select-tab-9)))
 ```
 
-## Customization
+# Customization
 
 There are two different ways to customise this package,
 
 + Visual
 + Behaviour
 
-### Visual
+## Visual
 
 #### **Tab Numbers** `atom-tabs-show--tab-numbers?` & `atom-tabs--tab-numbers:type`
 
@@ -112,9 +112,9 @@ this will make tabs narrowers. Tabs will still become narrower with
 split windows.
 
 
-### Behavioural
+## Behavioural
 
-## Listing
+### Listing
 
 You can customise how **Atom Tabs** gets its list of buffers to
 display as tabs, by default, it uses **Open Order** _i.e._ the order
@@ -171,7 +171,7 @@ For example,
 (setq atom-tabs--buffer-list/custom 'my-buffer-list')
 ```
 
-## Rotation
+### Rotation
 
 When there a lot of tabs to display, its not always possible to fit
 them in the header. To get around this, you can _rotate_ the list of
