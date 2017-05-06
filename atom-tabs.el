@@ -311,20 +311,20 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                    (lambda () (interactive) (switch-to-buffer (generate-new-buffer "*new-tab*"))))
                  map))))
 
-(defun atom-tabs--close-icon (buffer)
-  "Create a clickable close icon for BUFFER."
-  (let ((active? (eq buffer (current-buffer))))
-    (propertize "❌"
-     'display '(raise 0.3)
-     'face `(:foreground ,(atom-tabs--foreground active?)
-             :background ,(atom-tabs--background active?)
-             :height 1.1)
-     'mouse-face `((foreground-color . ,atom-tabs--highlight))
-     'local-map (let ((map (make-sparse-keymap)))
-                  (define-key map
-                    [header-line down-mouse-1]
-                    `(lambda () (interactive) (kill-buffer ,buffer) (force-window-update)))
-                  map))))
+(defun atom-tabs--close-icon (buffer active?)
+  "Create a clickable close icon for BUFFER.
+BUFFER face changes dependning on whether or not it's ACTIVE?."
+  (propertize "❌"
+   'display '(raise 0.3)
+   'face `(:foreground ,(atom-tabs--foreground active?)
+           :background ,(atom-tabs--background active?)
+           :height 1.1)
+   'mouse-face `((foreground-color . ,atom-tabs--highlight))
+   'local-map (let ((map (make-sparse-keymap)))
+                (define-key map
+                  [header-line down-mouse-1]
+                  `(lambda () (interactive) (kill-buffer ,buffer) (force-window-update)))
+                map)))
 
 (defun atom-tabs--modified-icon (buffer)
   "Create a modified icon for BUFFER."
@@ -414,9 +414,10 @@ TAB-LENGTH is the desired length of a uniform tab."
                      [header-line down-mouse-1]
                      `(lambda () (interactive) (switch-to-buffer ,buffer)))
                    map))
-     (atom-tabs--close-icon buffer)
+     (atom-tabs--close-icon buffer active?)
      main-padding)))
 
+(memoize 'atom-tabs--close-icon)
 (memoize 'atom-tabs-target-icon)
 (memoize 'atom-tabs-add-icon)
 
