@@ -308,7 +308,9 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
     'mouse-face `((foreground-color . ,atom-tabs--highlight))
     'local-map (let ((map (make-sparse-keymap)))
                  (define-key map [header-line down-mouse-1]
-                   (lambda () (interactive) (switch-to-buffer (generate-new-buffer "*new-tab*"))))
+                   (lambda () (interactive)
+                     (with-current-buffer (switch-to-buffer (generate-new-buffer "*new-tab*"))
+                       (when global-atom-tabs-mode (atom-tabs-mode)))))
                  map))))
 
 (defun atom-tabs--close-icon (buffer active?)
