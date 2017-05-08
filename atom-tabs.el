@@ -332,7 +332,7 @@ BUFFER face changes dependning on whether or not it's ACTIVE?."
   "Create a modified icon for BUFFER."
   (let ((active? (eq buffer (current-buffer))))
     (propertize
-     (format "  %s  " (if (buffer-modified-p buffer)
+     (format "  %s  " (if (and (buffer-modified-p buffer) (buffer-file-name buffer))
                          (all-the-icons-faicon "circle" :v-adjust 1)
                          "   "))
      'face `(:foreground ,atom-tabs--highlight
