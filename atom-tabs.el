@@ -33,7 +33,7 @@
 (declare-function projectile-project-buffers "ext:projectile.el")
 (defvar recentf-list)
 
-(defcustom atom-tabs--buffer-list:type :open-order
+(defcustom atom-tabs-type--buffer-list :open-order
   "What buffer listing and sorting function to use."
   :group 'atom-tabs
   :type '(radio
@@ -43,14 +43,14 @@
           (const :tag "Mode       - Display buffers with the same `major-mode'" :major-mode)
           (const :tag "Custom     - Display buffers using `atom-tabs--custom-buffer-list-f'" :custom)))
 
-(defvar atom-tabs--buffer-list:plist
-  '(:open-order (atom-tabs--buffer-list/open-order . atom-tabs--can-show/open-order)
-    :projectile (atom-tabs--buffer-list/projectile . atom-tabs--can-show/projectile)
-    :recentf    (atom-tabs--buffer-list/recentf . atom-tabs--can-show/recentf)
-    :major-mode (atom-tabs--buffer-list/major-mode . atom-tabs--can-show/major-mode)
-    :custom     (atom-tabs--buffer-list/custom . atom-tabs--can-show/custom)))
+(defvar atom-tabs--buffer-list-plist
+  '(:open-order (atom-tabs--buffer-list-open-order . atom-tabs--can-show-open-order)
+    :projectile (atom-tabs--buffer-list-projectile . atom-tabs--can-show-projectile)
+    :recentf    (atom-tabs--buffer-list-recentf . atom-tabs--can-show-recentf)
+    :major-mode (atom-tabs--buffer-list-major-mode . atom-tabs--can-show-major-mode)
+    :custom     (atom-tabs--buffer-list-custom . atom-tabs--can-show-custom)))
 
-(defvar atom-tabs--nav-tools:limit 5)
+(defvar atom-tabs--nav-tools-limit 5)
 (defcustom atom-tabs-show--nav-tools? 'never
   "Whether or not to show the navigation tools to rotate the list of buffers."
   :group 'atom-tabs
@@ -59,7 +59,7 @@
           (const :tag "always  - Show naivgation tools all the time " always)
           (const :tag "limited - Show navigation tools when number of tabs is greater than `atom-tabs--nav-tool-display-limit' " limited)))
 
-(defcustom atom-tabs--tab-numbers:type 'fixed
+(defcustom atom-tabs-type--tab-numbers 'fixed
   "Whether the tab numbers should be fixed or relative.
 When FIXED, a tab number will remain the same, even when the list is rotated.
 when RELATIVE a tab number will change based on rotation through the list of tabs."
@@ -88,18 +88,18 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   :group 'atom-tabs
   :type 'color)
 
-(defvar atom-tabs--filter:blacklist
+(defvar atom-tabs-filter--blacklist
   '("^\\*" "^ \\*" "^COMMIT_EDITMSG$")
   "List of regexps to not show/add as a tab.")
 
-(defvar atom-tabs--filter:whitelist
+(defvar atom-tabs-filter--whitelist
   '("^\\*scratch.*\\*$" "^\\*new-tab\\*")
   "List of regexps to always show/add as a tab.")
 
 (defvar atom-tabs--desired-tab-length 25
   "The approximate desired maximum length of a tab in characters.")
 
-(defvar atom-tabs--buffer-list/custom nil "Custom function to display buffers.")
+(defvar atom-tabs--buffer-list-custom nil "Custom function to display buffers.")
 
 (defcustom atom-tabs-keymap-prefix (kbd "C-x t")
   "Atom tabs keymap prefix."
@@ -133,9 +133,9 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 ;; State variables
 (defvar atom-tabs--recent-buffers '() "A list of recently accessed buffers in order of the time they were accessed.")
 
-(defvar atom-tabs--rotate:global 0 "The number with which to rotate the list of buffers globally.")
-(defvar-local atom-tabs--rotate:local 0 "The number with which to rotate the list of buffers locally.")
-(defcustom atom-tabs--rotate:type 'local
+(defvar atom-tabs--rotate-global 0 "The number with which to rotate the list of buffers globally.")
+(defvar-local atom-tabs--rotate-local 0 "The number with which to rotate the list of buffers locally.")
+(defcustom atom-tabs-type--rotate 'local
   "Whether tab rotation should be affect globally or locally."
   :group 'atom-tabs
     :type '(radio
@@ -144,8 +144,8 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 
 (defun atom-tabs--get-buffer-list ()
   "Common code to call to get the list of displayable buffers."
-  (if (fboundp (car (plist-get atom-tabs--buffer-list:plist atom-tabs--buffer-list:type)))
-       (funcall (car (plist-get atom-tabs--buffer-list:plist atom-tabs--buffer-list:type)))
+  (if (fboundp (car (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
+       (funcall (car (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
      (buffer-list)))
 
 (defun atom-tabs--buffer-list ()
@@ -156,22 +156,22 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   "Get the length of the buffers being displayed."
   (length (atom-tabs--get-buffer-list)))
 
-(defun atom-tabs--filter:match (buf filter-list)
+(defun atom-tabs-filter-match (buf filter-list)
   "Function to tell whether BUF match a regexp in FILTER-LIST."
   (cl-reduce (lambda (acc it) (or acc (string-match-p it buf))) filter-list :initial-value nil))
 
-(defun atom-tabs--can-show:base (&optional buf)
+(defun atom-tabs--can-show-base (&optional buf)
   "Base predicate to tell that BUF can be shown."
   (let ((buf (or buf (buffer-name (current-buffer)))))
     (or
-     (atom-tabs--filter:match buf atom-tabs--filter:whitelist)          ;; Either buffer is on whitelist
-     (not (atom-tabs--filter:match buf atom-tabs--filter:blacklist))))) ;; or its not on the blacklist
+     (atom-tabs-filter-match buf atom-tabs-filter--whitelist)          ;; Either buffer is on whitelist
+     (not (atom-tabs-filter-match buf atom-tabs-filter--blacklist))))) ;; or its not on the blacklist
 
 (defun atom-tabs--can-show? ()
   "Call `atom-tabs--buffer-list-f' predicate to decide whether to show for `current-buffer'."
-  (and (atom-tabs--can-show:base)
-   (if (fboundp (cdr (plist-get atom-tabs--buffer-list:plist atom-tabs--buffer-list:type)))
-       (funcall (cdr (plist-get atom-tabs--buffer-list:plist atom-tabs--buffer-list:type)))
+  (and (atom-tabs--can-show-base)
+   (if (fboundp (cdr (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
+       (funcall (cdr (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
      (buffer-file-name))))
 
 (defun atom-tabs--foreground (&optional active?)
@@ -187,43 +187,43 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 (defun atom-tabs--rotate (list-var)
   "Rotate LIST-VAR by N."
   (cl-remove-if (lambda (it) (< (cl-position it list-var)
-                           (if (eq atom-tabs--rotate:type 'local)
-                               atom-tabs--rotate:local
-                             atom-tabs--rotate:global))) list-var))
+                           (if (eq atom-tabs-type--rotate 'local)
+                               atom-tabs--rotate-local
+                             atom-tabs--rotate-global))) list-var))
 
-(defun atom-tabs--rotate/inc ()
+(defun atom-tabs-rotate-inc ()
   "Increase the rotation."
   (interactive)
-  (cl-incf atom-tabs--rotate:local)
-  (cl-incf atom-tabs--rotate:global)
+  (cl-incf atom-tabs--rotate-local)
+  (cl-incf atom-tabs--rotate-global)
   (force-window-update))
 
-(defun atom-tabs--rotate/dec ()
+(defun atom-tabs-rotate-dec ()
   "Decrease the rotation."
   (interactive)
-  (cl-decf atom-tabs--rotate:local)
-  (cl-decf atom-tabs--rotate:global)
+  (cl-decf atom-tabs--rotate-local)
+  (cl-decf atom-tabs--rotate-global)
   (force-window-update))
 
-(defun atom-tabs--rotate/min ()
+(defun atom-tabs-rotate-min ()
   "Set rotation back to 0."
   (interactive)
-  (setq atom-tabs--rotate:local 0)
-  (setq atom-tabs--rotate:global 0)
+  (setq atom-tabs--rotate-local 0)
+  (setq atom-tabs--rotate-global 0)
   (force-window-update))
 
-(defun atom-tabs--rotate/max ()
+(defun atom-tabs-rotate-max ()
   "Rotate to the very end of the list.
-N.B This only works in `atom-tabs--rotate:type' local mode."
+N.B This only works in `atom-tabs-type--rotate' local mode."
   (interactive)
-  (setq atom-tabs--rotate:local (- (atom-tabs--buffer-list-length) 4))
-  (setq atom-tabs--rotate:global (- (atom-tabs--buffer-list-length) 4))
+  (setq atom-tabs--rotate-local (- (atom-tabs--buffer-list-length) 4))
+  (setq atom-tabs--rotate-global (- (atom-tabs--buffer-list-length) 4))
   (force-window-update))
 
 (defun atom-tabs--nav-tools ()
   "Function to return the nav tools or nil."
   (when (cl-case atom-tabs-show--nav-tools?
-          (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tools:limit))
+          (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tools-limit))
           (never nil)
           (t t))
     (concat
@@ -241,7 +241,7 @@ rotation index to disable this button."
      (interactive)
      (let* ((icon-family (all-the-icons-icon-family ,icon))
             (limit (if (functionp ,limit) (funcall ,limit) ,limit))
-            (@limit (eq (if (eq atom-tabs--rotate:type 'local) atom-tabs--rotate:local atom-tabs--rotate:global)
+            (@limit (eq (if (eq atom-tabs-type--rotate 'local) atom-tabs--rotate-local atom-tabs--rotate-global)
                         limit)))
        (propertize (format "  %s  " ,icon)
                    'face `(:family ,icon-family
@@ -259,19 +259,19 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                                 (when (not @limit) map))))))
 
 (define-atom-tabs-rotation-icon "left"
-  'atom-tabs--rotate/dec
-  'atom-tabs--rotate/min
+  'atom-tabs-rotate-dec
+  'atom-tabs-rotate-min
   (all-the-icons-faicon "chevron-left" :v-adjust 0.2) 0)
 
 (define-atom-tabs-rotation-icon "right"
-  'atom-tabs--rotate/inc
-  'atom-tabs--rotate/max
+  'atom-tabs-rotate-inc
+  'atom-tabs-rotate-max
   (all-the-icons-faicon "chevron-right" :v-adjust 0.2) (lambda () (1- (atom-tabs--buffer-list-length))))
 
 (defun atom-tabs-target-icon ()
   "Icon to target the current buffer if its not visible."
   (let* ((current-id (cl-position (current-buffer) (atom-tabs--get-buffer-list)))
-         (visible? (<= (if (eq atom-tabs--rotate:type 'local) atom-tabs--rotate:local atom-tabs--rotate:global) current-id)))
+         (visible? (<= (if (eq atom-tabs-type--rotate 'local) atom-tabs--rotate-local atom-tabs--rotate-global) current-id)))
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
      (propertize
@@ -286,9 +286,9 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                    (define-key map [header-line down-mouse-1]
                      `(lambda () (interactive)
                         (select-window ,(get-buffer-window (current-buffer)))
-                        (if (eq atom-tabs--rotate:type 'local)
-                            (setq-local atom-tabs--rotate:local ,current-id)
-                          (setq atom-tabs--rotate:global ,current-id))
+                        (if (eq atom-tabs-type--rotate 'local)
+                            (setq-local atom-tabs--rotate-local ,current-id)
+                          (setq atom-tabs--rotate-global ,current-id))
                         (force-window-update)))
                    (when (not visible?) map)))
      (unless (atom-tabs--nav-tools) (propertize " " 'face `(:background ,(atom-tabs--background)))))))
@@ -345,7 +345,7 @@ BUFFER face changes dependning on whether or not it's ACTIVE?."
 This will only show when `atom-tabs-show--tab-numbers?' is non-nil"
   (when atom-tabs-show--tab-numbers?
     (let ((active? (eq buffer (current-buffer)))
-          (pos (cl-position buffer (if (eq atom-tabs--tab-numbers:type 'fixed)
+          (pos (cl-position buffer (if (eq atom-tabs-type--tab-numbers 'fixed)
                                        (atom-tabs--get-buffer-list)
                                      (atom-tabs--buffer-list)))))
       (propertize (format "%c" (+ pos 9312))
@@ -419,21 +419,21 @@ TAB-LENGTH is the desired length of a uniform tab."
      (atom-tabs--close-icon buffer active?)
      main-padding)))
 
-(memoize 'atom-tabs--filter:match)
-(memoize 'atom-tabs--close-icon)
-(memoize 'atom-tabs-target-icon)
-(memoize 'atom-tabs-add-icon)
+;; (memoize 'atom-tabs-filter-match)
+;; (memoize 'atom-tabs--close-icon)
+;; (memoize 'atom-tabs-target-icon)
+;; (memoize 'atom-tabs-add-icon)
 
 ;; Buffer filter functions
 
-(defun atom-tabs--buffer-list/projectile ()
+(defun atom-tabs--buffer-list-projectile ()
   "Function to return the list of buffers in projectile."
   (cl-reduce
    (lambda (acc it) (if (buffer-file-name it) (append acc `(,it)) acc))
    (sort (projectile-project-buffers) (lambda (a b) (string< (buffer-name a) (buffer-name b))))
    :initial-value '()))
 
-(defun atom-tabs--buffer-list/recentf ()
+(defun atom-tabs--buffer-list-recentf ()
   "Function to return the list of buffers in projectile."
   (cl-reduce
    (lambda (acc it)
@@ -447,7 +447,7 @@ TAB-LENGTH is the desired length of a uniform tab."
   "Advice to add `current-buffer' on `find-file' to `atom-tabs--recent-buffers'.
 ARGS is placeholder for when used as advice."
   (when (and (not (memq (current-buffer) atom-tabs--recent-buffers))
-             (atom-tabs--can-show:base))
+             (atom-tabs--can-show-base))
     (setq atom-tabs--recent-buffers (append atom-tabs--recent-buffers `(,(current-buffer))))))
 
 (defun atom-tabs--kill-recent (&rest args)
@@ -456,15 +456,15 @@ ARGS is a placeholder for when used as advice."
   (setq atom-tabs--recent-buffers
         (cl-remove-if-not 'buffer-live-p  atom-tabs--recent-buffers)))
 
-(defun atom-tabs--can-show/open-order ()
+(defun atom-tabs--can-show-open-order ()
   "Predicate to decided whether to show tabs for `open-order'."
   (memq (current-buffer) atom-tabs--recent-buffers))
 
-(defun atom-tabs--buffer-list/open-order ()
+(defun atom-tabs--buffer-list-open-order ()
   "Function to return list of buffers in the order they were opened."
   atom-tabs--recent-buffers)
 
-(defun atom-tabs--buffer-list/major-mode ()
+(defun atom-tabs--buffer-list-major-mode ()
   "Function to return the list of buffers with same major mode."
   (let ((mm major-mode))
     (cl-reduce
@@ -501,7 +501,7 @@ I is the index of the tab to select."
      ,(format "Select the %sth tab if visible." i)
      (interactive)
      (switch-to-buffer (nth (1- ,i)
-                            (if (eq atom-tabs--tab-numbers:type 'fixed)
+                            (if (eq atom-tabs-type--tab-numbers 'fixed)
                                 (atom-tabs--get-buffer-list)
                               (atom-tabs--buffer-list))))))
 
@@ -534,6 +534,7 @@ I is the index of the tab to select."
                  buffers
                  :initial-value '())
                 (atom-tabs-add-icon)))
+            
             (setq-local header-line-format nil)
             (force-window-update)))))
 
@@ -541,7 +542,7 @@ I is the index of the tab to select."
 (defun atom-tabs-theme ()
   "Set the `header-line-format' to be the tabs theme."
   (interactive)
-  (when (eq atom-tabs--buffer-list:type :open-order)
+  (when (eq atom-tabs-type--buffer-list :open-order)
     (atom-tabs--add-recent))
   (advice-add 'find-file :after 'atom-tabs--add-recent)
   (advice-add 'switch-to-buffer :after 'atom-tabs--add-recent)

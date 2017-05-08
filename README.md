@@ -65,9 +65,9 @@ There are two different ways to customise this package,
 
 ## Visual
 
-#### **Tab Numbers** `atom-tabs-show--tab-numbers?` & `atom-tabs--tab-numbers:type`
+#### **Tab Numbers** `atom-tabs-show--tab-numbers?` & `atom-tabs-type--tab-numbers`
 
-Setting `atom-tabs--tab-numbers:type` to these values has the
+Setting `atom-tabs-type--tab-numbers` to these values has the
 following effects
 
 | Value |  Effect |
@@ -120,7 +120,7 @@ You can customise how **Atom Tabs** gets its list of buffers to
 display as tabs, by default, it uses **Open Order** _i.e._ the order
 which you open files in.
 
-All options can be seen by customizing `atom-tabs--buffer-list:type`,
+All options can be seen by customizing `atom-tabs-type--buffer-list`,
 these are a couple of other options.
 
 | Value | Behaviour |
@@ -156,7 +156,7 @@ These are lists of regexps to match against the file name.
 
 #### Custom Listing
 
-Setting `atom-tasb--buffer-list:type` to `:custom` will allow you to
+Setting `atom-tasb-type--buffer-list` to `:custom` will allow you to
 define your own custom function and `can-show` predicate. You can set
 these as
 
