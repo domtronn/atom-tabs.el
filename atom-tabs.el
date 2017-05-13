@@ -89,10 +89,10 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   :group 'atom-tabs
   :type 'boolean)
 
-(defcustom atom-tabs-highlight "#63B2FF"
-  "The color to use for various higlights in the theme."
-  :group 'atom-tabs
-  :type 'color)
+(defface atom-tabs-highlight-face
+  '((t (:foreground "#63B2FF")))
+  "Face for `atom-tabs' highlights like modified buffers and mouse faces."
+  :group 'atom-tabs)
 
 (defvar atom-tabs-filter-blacklist
   '("^\\*" "^ \\*" "^COMMIT_EDITMSG$")
@@ -254,7 +254,7 @@ rotation index to disable this button."
                            :height 1.2
                            :foreground ,(if @limit (atom-tabs--background t) (atom-tabs--foreground))
                            :background ,(atom-tabs--background))
-                   'mouse-face (when (not @limit) `((foreground-color . ,atom-tabs-highlight)))
+                   'mouse-face (when (not @limit) 'atom-tabs-highlight-face)
                    'help-echo (when (not @limit) (format " mouse-1: Rotate list %s
 M-mouse-1: Go to %s-most item in list" ,name ,name))
                    'local-map (let ((map (make-sparse-keymap)))
@@ -287,7 +287,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                       :foreground ,(if visible-p (atom-tabs--background t) (atom-tabs--foreground))
                       :background ,(atom-tabs--background))
       'help-echo (format "Rotate tab list to focus current buffer `%s'" (current-buffer))
-      'mouse-face (when (not visible-p) `((foreground-color . ,atom-tabs-highlight)))
+      'mouse-face (when (not visible-p) 'atom-tabs-highlight-face)
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map [header-line down-mouse-1]
                      `(lambda () (interactive)
@@ -302,7 +302,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 (defun atom-tabs-add-icon ()
   "Icon to add a new buffer/tab."
   (concat
-   (propertize (propertize " " 'face `(:background ,(atom-tabs--background t) :height 0.2)))
+   (propertize (propertize " " 'face `(:background ,(atom-tabs--background t) :height 0.3)))
    (propertize
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
@@ -311,7 +311,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                          :foreground ,(atom-tabs--background t)
                          :background ,(atom-tabs--background)))
      (propertize " " 'face `(:background ,(atom-tabs--background))))
-    'mouse-face `((foreground-color . ,atom-tabs-highlight))
+    'mouse-face 'atom-tabs-highlight-face
     'local-map (let ((map (make-sparse-keymap)))
                  (define-key map [header-line down-mouse-1]
                    (lambda () (interactive)
@@ -327,7 +327,7 @@ BUFFER face changes dependning on whether or not it's ACTIVE-P."
    'face `(:foreground ,(atom-tabs--foreground active-p)
            :background ,(atom-tabs--background active-p)
            :height 1.1)
-   'mouse-face `((foreground-color . ,atom-tabs-highlight))
+   'mouse-face 'atom-tabs-highlight-face
    'local-map (let ((map (make-sparse-keymap)))
                 (define-key map
                   [header-line down-mouse-1]
@@ -341,7 +341,7 @@ BUFFER face changes dependning on whether or not it's ACTIVE-P."
      (format "  %s  " (if (and (buffer-modified-p buffer) (buffer-file-name buffer))
                          (all-the-icons-faicon "circle" :v-adjust 1)
                          "   "))
-     'face `(:foreground ,atom-tabs-highlight
+     'face `(:foreground ,(face-foreground 'atom-tabs-highlight-face)
              :family ,(all-the-icons-faicon-family)
              :height 0.5
              :background ,(atom-tabs--background active-p)))))
@@ -404,7 +404,7 @@ TAB-LENGTH is the desired length of a uniform tab."
          (right-padding (propertize (cl-reduce 'concat (make-list (max (- pad-length 2) 0) " ")) 'face padding-face))
          (main-padding (propertize " " 'face padding-face))
 
-         (separator (propertize " " 'face `(:background ,(if active-p atom-tabs-highlight (face-background 'default)) :height 0.2 ))))
+         (separator (propertize " " 'face `(:background ,(if active-p (face-foreground 'atom-tabs-highlight-face) (face-background 'default)) :height 0.3))))
 
     (concat
      separator
@@ -416,7 +416,7 @@ TAB-LENGTH is the desired length of a uniform tab."
               right-padding
               (atom-tabs--modified-icon buffer))
       'help-echo  (when (string-match-p "… $" (atom-tabs--name buffer tab-length)) (buffer-name buffer))
-      'mouse-face (unless(eq buffer (current-buffer)) `(:foreground ,atom-tabs-highlight :inherit))
+      'mouse-face (unless (eq buffer (current-buffer)) 'atom-tabs-highlight-face)
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map
                      [header-line down-mouse-1]
