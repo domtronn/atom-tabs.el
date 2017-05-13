@@ -33,6 +33,12 @@
 (declare-function projectile-project-buffers "ext:projectile.el")
 (defvar recentf-list)
 
+(defgroup atom-tabs nil
+  "Manage how Atom Tabs behaves."
+  :prefix "atom-tabs-"
+  :group 'appearance
+  :group 'convenience)
+
 (defcustom atom-tabs-type--buffer-list :open-order
   "What buffer listing and sorting function to use."
   :group 'atom-tabs
