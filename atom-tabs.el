@@ -302,7 +302,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 (defun atom-tabs-add-icon ()
   "Icon to add a new buffer/tab."
   (concat
-   (propertize (propertize " " 'face `(:background ,(atom-tabs--background t) :family "Arial Narrow" :height 2.5)))
+   (propertize (propertize " " 'face `(:background ,(atom-tabs--background t) :height 0.2)))
    (propertize
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
@@ -404,7 +404,7 @@ TAB-LENGTH is the desired length of a uniform tab."
          (right-padding (propertize (cl-reduce 'concat (make-list (max (- pad-length 2) 0) " ")) 'face padding-face))
          (main-padding (propertize " " 'face padding-face))
 
-         (separator (propertize " " 'face `(:background ,(if active-p atom-tabs-highlight (face-background 'default)) :height  2.5 :family "Arial Narrow"))))
+         (separator (propertize " " 'face `(:background ,(if active-p atom-tabs-highlight (face-background 'default)) :height 0.2 ))))
 
     (concat
      separator
@@ -539,7 +539,8 @@ I is the index of the tab to select."
                                   (- (/ (window-text-width) (atom-tabs--buffer-list-length)) 6) ))))
                  buffers
                  :initial-value '())
-                (atom-tabs-add-icon)))
+                (atom-tabs-add-icon)
+                (propertize " " 'face `(:height ,(* (or (face-attribute 'header-line :height) 1.0) 2.5)))))
             
             (setq-local header-line-format nil)
             (force-window-update)))))
