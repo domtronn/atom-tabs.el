@@ -27,6 +27,7 @@
 
 ;;; Code:
 (require 'all-the-icons)
+(require 'memoize)
 
 ;; Forward declarations of optional dependencies
 (declare-function projectile-project-p "ext:projectile.el")
@@ -425,7 +426,7 @@ TAB-LENGTH is the desired length of a uniform tab."
      (atom-tabs--close-icon buffer active-p)
      main-padding)))
 
-;; (memoize 'atom-tabs-filter-match)
+(memoize 'atom-tabs-filter-match)
 ;; (memoize 'atom-tabs--close-icon)
 ;; (memoize 'atom-tabs-target-icon)
 ;; (memoize 'atom-tabs-add-icon)
