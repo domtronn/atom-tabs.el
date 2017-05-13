@@ -134,7 +134,7 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   (let ((map (make-sparse-keymap)))
     (define-key map atom-tabs-keymap-prefix 'atom-tabs-command-map)
     map)
-  "Keymap for Projectile mode.")
+  "Keymap for Atom Tabs mode.")
 
 ;; State variables
 (defvar atom-tabs--recent-buffers '() "A list of recently accessed buffers in order of the time they were accessed.")
