@@ -39,7 +39,7 @@
   :group 'appearance
   :group 'convenience)
 
-(defcustom atom-tabs-type--buffer-list :open-order
+(defcustom atom-tabs-type-buffer-list :open-order
   "What buffer listing and sorting function to use."
   :group 'atom-tabs
   :type '(radio
@@ -56,8 +56,8 @@
     :major-mode (atom-tabs--buffer-list-major-mode . atom-tabs--can-show-major-mode)
     :custom     (atom-tabs--buffer-list-custom . atom-tabs--can-show-custom)))
 
-(defvar atom-tabs--nav-tools-limit 5)
-(defcustom atom-tabs-show--nav-tools-p 'never
+(defvar atom-tabs-nav-tools-limit 5)
+(defcustom atom-tabs-show-nav-tools-p 'never
   "Whether or not to show the navigation tools to rotate the list of buffers."
   :group 'atom-tabs
   :type '(radio
@@ -65,7 +65,7 @@
           (const :tag "always  - Show naivgation tools all the time " always)
           (const :tag "limited - Show navigation tools when number of tabs is greater than `atom-tabs--nav-tool-display-limit' " limited)))
 
-(defcustom atom-tabs-type--tab-numbers 'fixed
+(defcustom atom-tabs-type-tab-numbers 'fixed
   "Whether the tab numbers should be fixed or relative.
 When FIXED, a tab number will remain the same, even when the list is rotated.
 when RELATIVE a tab number will change based on rotation through the list of tabs."
@@ -74,38 +74,38 @@ when RELATIVE a tab number will change based on rotation through the list of tab
           (const 'fixed)
           (const 'relative)))
 
-(defcustom atom-tabs-show--tab-numbers-p nil
+(defcustom atom-tabs-show-tab-numbers-p nil
   "Whether or not to display tab numbers in tabs."
   :group 'atom-tabs
   :type 'boolean)
 
-(defcustom atom-tabs-show--color-icons-p t
+(defcustom atom-tabs-show-color-icons-p t
   "Whether or not to display file icons in color."
   :group 'atom-tabs
   :type 'boolean)
 
-(defcustom atom-tabs-show--file-icons-p t
+(defcustom atom-tabs-show-file-icons-p t
   "Whether or not to display file icons next to buffer names."
   :group 'atom-tabs
   :type 'boolean)
 
-(defcustom atom-tabs--highlight "#63B2FF"
+(defcustom atom-tabs-highlight "#63B2FF"
   "The color to use for various higlights in the theme."
   :group 'atom-tabs
   :type 'color)
 
-(defvar atom-tabs-filter--blacklist
+(defvar atom-tabs-filter-blacklist
   '("^\\*" "^ \\*" "^COMMIT_EDITMSG$")
   "List of regexps to not show/add as a tab.")
 
-(defvar atom-tabs-filter--whitelist
+(defvar atom-tabs-filter-whitelist
   '("^\\*scratch.*\\*$" "^\\*new-tab\\*")
   "List of regexps to always show/add as a tab.")
 
-(defvar atom-tabs--desired-tab-length 25
+(defvar atom-tabs-desired-tab-length 25
   "The approximate desired maximum length of a tab in characters.")
 
-(defvar atom-tabs--buffer-list-custom nil "Custom function to display buffers.")
+(defvar atom-tabs-buffer-list-custom nil "Custom function to display buffers.")
 
 (defcustom atom-tabs-keymap-prefix (kbd "C-x t")
   "Atom tabs keymap prefix."
@@ -141,7 +141,7 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 
 (defvar atom-tabs--rotate-global 0 "The number with which to rotate the list of buffers globally.")
 (defvar-local atom-tabs--rotate-local 0 "The number with which to rotate the list of buffers locally.")
-(defcustom atom-tabs-type--rotate 'local
+(defcustom atom-tabs-type-rotate 'local
   "Whether tab rotation should be affect globally or locally."
   :group 'atom-tabs
     :type '(radio
@@ -150,8 +150,8 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 
 (defun atom-tabs--get-buffer-list ()
   "Common code to call to get the list of displayable buffers."
-  (if (fboundp (car (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
-       (funcall (car (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
+  (if (fboundp (car (plist-get atom-tabs--buffer-list-plist atom-tabs-type-buffer-list)))
+       (funcall (car (plist-get atom-tabs--buffer-list-plist atom-tabs-type-buffer-list)))
      (buffer-list)))
 
 (defun atom-tabs--buffer-list ()
@@ -170,30 +170,30 @@ when RELATIVE a tab number will change based on rotation through the list of tab
   "Base predicate to tell that BUF can be shown."
   (let ((buf (or buf (buffer-name (current-buffer)))))
     (or
-     (atom-tabs-filter-match buf atom-tabs-filter--whitelist)          ;; Either buffer is on whitelist
-     (not (atom-tabs-filter-match buf atom-tabs-filter--blacklist))))) ;; or its not on the blacklist
+     (atom-tabs-filter-match buf atom-tabs-filter-whitelist)          ;; Either buffer is on whitelist
+     (not (atom-tabs-filter-match buf atom-tabs-filter-blacklist))))) ;; or its not on the blacklist
 
 (defun atom-tabs--can-show-p ()
   "Call `atom-tabs--buffer-list-f' predicate to decide whether to show for `current-buffer'."
   (and (atom-tabs--can-show-base)
-   (if (fboundp (cdr (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
-       (funcall (cdr (plist-get atom-tabs--buffer-list-plist atom-tabs-type--buffer-list)))
+   (if (fboundp (cdr (plist-get atom-tabs--buffer-list-plist atom-tabs-type-buffer-list)))
+       (funcall (cdr (plist-get atom-tabs--buffer-list-plist atom-tabs-type-buffer-list)))
      (buffer-file-name))))
 
 (defun atom-tabs--foreground (&optional active-p)
-  "Return the foreground color based on whether buffer is ACTIVE-p."
+  "Return the foreground color based on whether buffer is ACTIVE-P."
   (or (face-foreground (if active-p 'default 'modeline-inactive))
       (face-foreground 'default)))
 
 (defun atom-tabs--background (&optional active-p)
-  "Return the foreground color based on whether buffer is ACTIVE-p."
+  "Return the foreground color based on whether buffer is ACTIVE-P."
   (or (face-background (if active-p 'default 'modeline-inactive))
       (face-background 'default)))
 
 (defun atom-tabs--rotate (list-var)
   "Rotate LIST-VAR by N."
   (cl-remove-if (lambda (it) (< (cl-position it list-var)
-                           (if (eq atom-tabs-type--rotate 'local)
+                           (if (eq atom-tabs-type-rotate 'local)
                                atom-tabs--rotate-local
                              atom-tabs--rotate-global))) list-var))
 
@@ -228,8 +228,8 @@ N.B This only works in `atom-tabs-type--rotate' local mode."
 
 (defun atom-tabs--nav-tools ()
   "Function to return the nav tools or nil."
-  (when (cl-case atom-tabs-show--nav-tools-p
-          (limited (> (atom-tabs--buffer-list-length) atom-tabs--nav-tools-limit))
+  (when (cl-case atom-tabs-show-nav-tools-p
+          (limited (> (atom-tabs--buffer-list-length) atom-tabs-nav-tools-limit))
           (never nil)
           (t t))
     (concat
@@ -247,14 +247,14 @@ rotation index to disable this button."
      (interactive)
      (let* ((icon-family (all-the-icons-icon-family ,icon))
             (limit (if (functionp ,limit) (funcall ,limit) ,limit))
-            (@limit (eq (if (eq atom-tabs-type--rotate 'local) atom-tabs--rotate-local atom-tabs--rotate-global)
+            (@limit (eq (if (eq atom-tabs-type-rotate 'local) atom-tabs--rotate-local atom-tabs--rotate-global)
                         limit)))
        (propertize (format "  %s  " ,icon)
                    'face `(:family ,icon-family
                            :height 1.2
                            :foreground ,(if @limit (atom-tabs--background t) (atom-tabs--foreground))
                            :background ,(atom-tabs--background))
-                   'mouse-face (when (not @limit) `((foreground-color . ,atom-tabs--highlight)))
+                   'mouse-face (when (not @limit) `((foreground-color . ,atom-tabs-highlight)))
                    'help-echo (when (not @limit) (format " mouse-1: Rotate list %s
 M-mouse-1: Go to %s-most item in list" ,name ,name))
                    'local-map (let ((map (make-sparse-keymap)))
@@ -277,7 +277,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 (defun atom-tabs-target-icon ()
   "Icon to target the current buffer if its not visible."
   (let* ((current-id (cl-position (current-buffer) (atom-tabs--get-buffer-list)))
-         (visible-p (<= (if (eq atom-tabs-type--rotate 'local) atom-tabs--rotate-local atom-tabs--rotate-global) current-id)))
+         (visible-p (<= (if (eq atom-tabs-type-rotate 'local) atom-tabs--rotate-local atom-tabs--rotate-global) current-id)))
     (concat
      (propertize " " 'face `(:background ,(atom-tabs--background)))
      (propertize
@@ -287,12 +287,12 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                       :foreground ,(if visible-p (atom-tabs--background t) (atom-tabs--foreground))
                       :background ,(atom-tabs--background))
       'help-echo (format "Rotate tab list to focus current buffer `%s'" (current-buffer))
-      'mouse-face (when (not visible-p) `((foreground-color . ,atom-tabs--highlight)))
+      'mouse-face (when (not visible-p) `((foreground-color . ,atom-tabs-highlight)))
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map [header-line down-mouse-1]
                      `(lambda () (interactive)
                         (select-window ,(get-buffer-window (current-buffer)))
-                        (if (eq atom-tabs-type--rotate 'local)
+                        (if (eq atom-tabs-type-rotate 'local)
                             (setq-local atom-tabs--rotate-local ,current-id)
                           (setq atom-tabs--rotate-global ,current-id))
                         (force-window-update)))
@@ -311,7 +311,7 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
                          :foreground ,(atom-tabs--background t)
                          :background ,(atom-tabs--background)))
      (propertize " " 'face `(:background ,(atom-tabs--background))))
-    'mouse-face `((foreground-color . ,atom-tabs--highlight))
+    'mouse-face `((foreground-color . ,atom-tabs-highlight))
     'local-map (let ((map (make-sparse-keymap)))
                  (define-key map [header-line down-mouse-1]
                    (lambda () (interactive)
@@ -321,13 +321,13 @@ M-mouse-1: Go to %s-most item in list" ,name ,name))
 
 (defun atom-tabs--close-icon (buffer active-p)
   "Create a clickable close icon for BUFFER.
-BUFFER face changes dependning on whether or not it's ACTIVE-p."
+BUFFER face changes dependning on whether or not it's ACTIVE-P."
   (propertize "❌"
    'display '(raise 0.3)
    'face `(:foreground ,(atom-tabs--foreground active-p)
            :background ,(atom-tabs--background active-p)
            :height 1.1)
-   'mouse-face `((foreground-color . ,atom-tabs--highlight))
+   'mouse-face `((foreground-color . ,atom-tabs-highlight))
    'local-map (let ((map (make-sparse-keymap)))
                 (define-key map
                   [header-line down-mouse-1]
@@ -341,7 +341,7 @@ BUFFER face changes dependning on whether or not it's ACTIVE-p."
      (format "  %s  " (if (and (buffer-modified-p buffer) (buffer-file-name buffer))
                          (all-the-icons-faicon "circle" :v-adjust 1)
                          "   "))
-     'face `(:foreground ,atom-tabs--highlight
+     'face `(:foreground ,atom-tabs-highlight
              :family ,(all-the-icons-faicon-family)
              :height 0.5
              :background ,(atom-tabs--background active-p)))))
@@ -349,9 +349,9 @@ BUFFER face changes dependning on whether or not it's ACTIVE-p."
 (defun atom-tabs--num-icon (buffer)
   "Show the number of the current BUFFER tab.
 This will only show when `atom-tabs-show--tab-numbers-p' is non-nil"
-  (when atom-tabs-show--tab-numbers-p
+  (when atom-tabs-show-tab-numbers-p
     (let ((active-p (eq buffer (current-buffer)))
-          (pos (cl-position buffer (if (eq atom-tabs-type--tab-numbers 'fixed)
+          (pos (cl-position buffer (if (eq atom-tabs-type-tab-numbers 'fixed)
                                        (atom-tabs--get-buffer-list)
                                      (atom-tabs--buffer-list)))))
       (propertize (format "%c" (+ pos 9312))
@@ -370,7 +370,7 @@ TAB-LENGTH is the desired length of a uniform tab."
                      (t (all-the-icons-icon-for-file (buffer-name buffer)))))
          (icon-face `(:height  ,(plist-get (get-text-property 0 'face icon) :height)
                       :family  ,(all-the-icons-icon-family icon)
-                      :foreground ,(or (when (and active-p atom-tabs-show--color-icons-p)
+                      :foreground ,(or (when (and active-p atom-tabs-show-color-icons-p)
                                          (ignore-errors (face-foreground (plist-get (get-text-property 0 'face icon) :inherit))))
                                     (atom-tabs--foreground active-p))
                       :background ,(atom-tabs--background active-p)))
@@ -385,7 +385,7 @@ TAB-LENGTH is the desired length of a uniform tab."
                       :foreground ,(atom-tabs--foreground active-p)
                       :background ,(atom-tabs--background active-p))))
     (concat
-     (when atom-tabs-show--file-icons-p (propertize icon 'face icon-face 'display '(raise 0.3)))
+     (when atom-tabs-show-file-icons-p (propertize icon 'face icon-face 'display '(raise 0.3)))
      (propertize name 'face name-face 'display '(raise 0.4)))))
 
 (defun atom-tabs--create-tab (buffer &optional tab-length)
@@ -400,11 +400,11 @@ TAB-LENGTH is the desired length of a uniform tab."
          (active-p (eq buffer (current-buffer)))
 
          (padding-face `(:background ,(if active-p (face-background 'default) (face-background 'modeline-inactive))))
-         (left-padding  (propertize (cl-reduce 'concat (make-list (max (- pad-length (if atom-tabs-show--tab-numbers-p 3 0)) 2) " ")) 'face padding-face))
+         (left-padding  (propertize (cl-reduce 'concat (make-list (max (- pad-length (if atom-tabs-show-tab-numbers-p 3 0)) 2) " ")) 'face padding-face))
          (right-padding (propertize (cl-reduce 'concat (make-list (max (- pad-length 2) 0) " ")) 'face padding-face))
          (main-padding (propertize " " 'face padding-face))
 
-         (separator (propertize " " 'face `(:background ,(if active-p atom-tabs--highlight (face-background 'default)) :height  2.5 :family "Arial Narrow"))))
+         (separator (propertize " " 'face `(:background ,(if active-p atom-tabs-highlight (face-background 'default)) :height  2.5 :family "Arial Narrow"))))
 
     (concat
      separator
@@ -416,7 +416,7 @@ TAB-LENGTH is the desired length of a uniform tab."
               right-padding
               (atom-tabs--modified-icon buffer))
       'help-echo  (when (string-match-p "… $" (atom-tabs--name buffer tab-length)) (buffer-name buffer))
-      'mouse-face (unless(eq buffer (current-buffer)) `(:foreground ,atom-tabs--highlight :inherit))
+      'mouse-face (unless(eq buffer (current-buffer)) `(:foreground ,atom-tabs-highlight :inherit))
       'local-map (let ((map (make-sparse-keymap)))
                    (define-key map
                      [header-line down-mouse-1]
@@ -507,7 +507,7 @@ I is the index of the tab to select."
      ,(format "Select the %sth tab if visible." i)
      (interactive)
      (switch-to-buffer (nth (1- ,i)
-                            (if (eq atom-tabs-type--tab-numbers 'fixed)
+                            (if (eq atom-tabs-type-tab-numbers 'fixed)
                                 (atom-tabs--get-buffer-list)
                               (atom-tabs--buffer-list))))))
 
@@ -548,7 +548,7 @@ I is the index of the tab to select."
 (defun atom-tabs-theme ()
   "Set the `header-line-format' to be the tabs theme."
   (interactive)
-  (when (eq atom-tabs-type--buffer-list :open-order)
+  (when (eq atom-tabs-type-buffer-list :open-order)
     (atom-tabs--add-recent))
   (advice-add 'find-file :after 'atom-tabs--add-recent)
   (advice-add 'switch-to-buffer :after 'atom-tabs--add-recent)
