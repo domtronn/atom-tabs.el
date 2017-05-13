@@ -182,12 +182,12 @@ when RELATIVE a tab number will change based on rotation through the list of tab
 
 (defun atom-tabs--foreground (&optional active?)
   "Return the foreground color based on whether buffer is ACTIVE?."
-  (or (face-foreground (if active? 'default 'powerline-inactive1))
+  (or (face-foreground (if active? 'default 'modeline-inactive))
       (face-foreground 'default)))
 
 (defun atom-tabs--background (&optional active?)
   "Return the foreground color based on whether buffer is ACTIVE?."
-  (or (face-background (if active? 'default 'powerline-inactive1))
+  (or (face-background (if active? 'default 'modeline-inactive))
       (face-background 'default)))
 
 (defun atom-tabs--rotate (list-var)
@@ -399,7 +399,7 @@ TAB-LENGTH is the desired length of a uniform tab."
 
          (active? (eq buffer (current-buffer)))
 
-         (padding-face `(:background ,(if active? (face-background 'default) (face-background 'powerline-inactive1))))
+         (padding-face `(:background ,(if active? (face-background 'default) (face-background 'modeline-inactive))))
          (left-padding  (propertize (cl-reduce 'concat (make-list (max (- pad-length (if atom-tabs-show--tab-numbers? 3 0)) 2) " ")) 'face padding-face))
          (right-padding (propertize (cl-reduce 'concat (make-list (max (- pad-length 2) 0) " ")) 'face padding-face))
          (main-padding (propertize " " 'face padding-face))
